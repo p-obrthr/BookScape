@@ -1,7 +1,4 @@
-using System.ComponentModel.Design;
 using Infrastructure.Data;
-using LinqToDB.Common;
-using LinqToDB.Common.Internal;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Infrastructure.DependencyInjection;

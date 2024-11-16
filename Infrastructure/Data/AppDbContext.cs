@@ -1,5 +1,3 @@
-// Infrastruktur/DbContext/YourDataContext.cs
-using System.Diagnostics;
 using Domain.Entities;
 using LinqToDB;
 using LinqToDB.Data;
