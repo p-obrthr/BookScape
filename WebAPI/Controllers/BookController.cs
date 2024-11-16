@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Domain.Interfaces;
 using Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebAPI.Controllers;
 
@@ -15,6 +16,7 @@ public class BookController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> GetAll()
     {
         var response = await _bookServ.GetAllBooksAsync();
@@ -22,6 +24,7 @@ public class BookController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize]
     public async Task<IActionResult> Create(Book book)
     {
         var id = await _bookServ.AddBookAsync(book);

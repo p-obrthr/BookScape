@@ -1,10 +1,8 @@
-using Application.Interfaces;
 using Application.Services;
 using Domain.Interfaces;
 using Infrastructure.DependencyInjection;
-using Infrastructure.Repositories;
-using Microsoft.Extensions.Options;
 using WebAPI.Filters;
+using Microsoft.OpenApi.Models;
 
 namespace WebAPI;
 
@@ -15,17 +13,52 @@ public class Program
         var builder = WebApplication.CreateSlimBuilder(args);
 
         builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
+        builder.Services.AddSwaggerGen(swagger =>
+        {
+            swagger.SwaggerDoc("v1", new OpenApiInfo()
+            {
+                Version = "v1",
+                Title = "BookScape Web API",
+            });
+            swagger.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+            {
+                Name = "Authorization",
+                Type = SecuritySchemeType.ApiKey,
+                Scheme = "Bearer",
+                BearerFormat = "JWT",
+                In = ParameterLocation.Header
+            });
+            swagger.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference()
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }   
+                    }, Array.Empty<string>()
+                }
+            });
+        });
 
         builder.Services.AddControllers();
-        builder.Services.AddScoped<IBookRepository, BookRepository>();
-        builder.Services.AddScoped<IBookService, BookService>();
         builder.Services.AddControllers( options =>
         {
             options.Filters.Add<GlobalExceptionFilter>();
         });
-        builder.Services.InfrastructureServices();
+        builder.Services.InfrastructureServices(builder.Configuration);
+        builder.Services.AddScoped<IBookService, BookService>();
 
+        
+        var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY");
+        if (string.IsNullOrEmpty(jwtKey))
+        {
+            throw new InvalidOperationException("JWT_KEY variable is not set.");
+        }
+
+        builder.Configuration["Jwt:Key"] = jwtKey;
         var app = builder.Build();
 
         if (app.Environment.IsDevelopment())
@@ -35,6 +68,8 @@ public class Program
         }
 
         app.MapControllers();
+        app.UseAuthentication();
+        app.UseAuthorization();
 
         app.Run();
     }

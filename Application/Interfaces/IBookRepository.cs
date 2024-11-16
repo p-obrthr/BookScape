@@ -9,4 +9,5 @@ public interface IBookRepository
     Task UpdateBookAsync(Book book);
     Task DeleteBookAsync(ulong id);
     Task<List<Book>> GetAllBookAsync();
+    Task<List<Book>> GetBooksByUserIdAsync(ulong id);
 }

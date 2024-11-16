@@ -39,4 +39,13 @@ public class BookRepository : IBookRepository
         var books = await _context.Books.ToListAsync(); 
         return books;
     }
+
+    public async Task<List<Book>> GetBooksByUserIdAsync(ulong userId)
+    {
+        var books =  await _context
+                    .Books            
+                    .Where(b => b.UserId == userId)
+                    .ToListAsync();
+        return books;
+    }
 }
