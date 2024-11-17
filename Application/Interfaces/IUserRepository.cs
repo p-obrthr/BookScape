@@ -1,9 +1,9 @@
-using Application.DTOs;
+using Domain.Entities;
 
 namespace Application.Interfaces;
 
 public interface IUserRepository
 {
-    Task<RegistrationResponse> RegisterUserAsync(RegisterDTO registerDTO);
-    Task<LoginResponse> LoginUserAsync(LoginDTO loginDTO);
+    Task<ulong> AddUserAsync(User user);
+    Task<User?> GetUserByEmailAsync(string email);
 }

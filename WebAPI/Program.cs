@@ -49,9 +49,9 @@ public class Program
             options.Filters.Add<GlobalExceptionFilter>();
         });
         builder.Services.InfrastructureServices(builder.Configuration);
+        
         builder.Services.AddScoped<IBookService, BookService>();
 
-        
         var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY");
         if (string.IsNullOrEmpty(jwtKey))
         {
@@ -67,9 +67,10 @@ public class Program
             app.UseSwaggerUI();
         }
 
-        app.MapControllers();
         app.UseAuthentication();
         app.UseAuthorization();
+        
+        app.MapControllers();
 
         app.Run();
     }

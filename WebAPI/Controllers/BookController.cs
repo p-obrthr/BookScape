@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Authorization;
 
 namespace WebAPI.Controllers;
 
-[Route("/api/[controller]")]
 [ApiController]
 public class BookController : ControllerBase
 {
@@ -15,7 +14,7 @@ public class BookController : ControllerBase
         _bookServ = bookService;
     }
 
-    [HttpGet]
+    [HttpGet("books")]
     [Authorize]
     public async Task<IActionResult> GetAll()
     {
@@ -23,7 +22,7 @@ public class BookController : ControllerBase
         return Ok(response);
     }
 
-    [HttpPost]
+    [HttpPost("book")]
     [Authorize]
     public async Task<IActionResult> Create(Book book)
     {

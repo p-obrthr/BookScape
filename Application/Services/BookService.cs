@@ -20,5 +20,4 @@ public class BookService : IBookService
 
     public async Task<List<Book>> GetBooksByUserAsync(ulong id)
     => await _bookRepo.GetBooksByUserIdAsync(id);
-    
 }

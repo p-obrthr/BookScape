@@ -1,13 +1,12 @@
-using System.Security.Cryptography;
 using System.Text;
 using Application.Interfaces;
+using Application.Interfaces.Authentication;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
-using LinqToDB.Common;
+using Infrastructure.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Infrastructure.DependencyInjection;
@@ -42,6 +41,9 @@ public static class ServiceContainer
         });
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IBookRepository, BookRepository>();
+        services.AddScoped<IAuthenticationService, AuthenticationService>();
+        services.AddScoped<IJwtGenerator, JwtGenerator>();
+        services.AddScoped<IHasher, Hasher>();
 
         return services;
     }
