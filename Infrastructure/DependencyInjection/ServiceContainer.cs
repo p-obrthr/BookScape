@@ -1,6 +1,7 @@
 using System.Text;
 using Application.Interfaces;
 using Application.Interfaces.Authentication;
+using Application.Services;
 using Infrastructure.Data;
 using Infrastructure.Repositories;
 using Infrastructure.Services;
@@ -44,6 +45,7 @@ public static class ServiceContainer
         services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddScoped<IJwtGenerator, JwtGenerator>();
         services.AddScoped<IHasher, Hasher>();
+        services.AddScoped<IBookService, BookService>();
 
         return services;
     }

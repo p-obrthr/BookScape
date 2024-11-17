@@ -13,10 +13,11 @@ public class UserRepository : IUserRepository
         _context = appDbContext;
     }
 
-    public async Task<ulong> AddUserAsync(User user)
+    public async Task<int> AddUserAsync(User user)
     {
         var id = await _context.InsertWithIdentityAsync(user);
-        return (ulong)(long)id;
+        Console.WriteLine(id);
+        return (int)(long)id;
     }
 
     public async Task<User?> GetUserByEmailAsync(string email)

@@ -1,7 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
-using Domain.Interfaces;
-using Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
+using Application.Models;
+using Application.Interfaces;
 
 namespace WebAPI.Controllers;
 
@@ -16,17 +17,36 @@ public class BookController : ControllerBase
 
     [HttpGet("books")]
     [Authorize]
-    public async Task<IActionResult> GetAll()
+    public async Task<IActionResult> GetBooks()
     {
-        var response = await _bookServ.GetAllBooksAsync();
-        return Ok(response);
+        var userId = GetId(User);
+        if (userId == null) return Unauthorized("user id not found in token");
+        
+        var response = await _bookServ.GetBooksByUserAsync((int)userId);
+
+        return Ok(response ?? new());
     }
 
     [HttpPost("book")]
     [Authorize]
-    public async Task<IActionResult> Create(Book book)
+    public async Task<IActionResult> Create(BookCreationRequest bookCreationReq)
     {
-        var id = await _bookServ.AddBookAsync(book);
-        return StatusCode(201, new { id,  book });
+        var userId = GetId(User);
+        if (userId == null) return Unauthorized("user id not found in token");
+
+        var id = await _bookServ.AddBookAsync(bookCreationReq, (int)userId);
+        return StatusCode(201, new { id,  bookCreationReq });
     }
+
+    private int? GetId(ClaimsPrincipal user)
+    {
+        var userId = user.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (string.IsNullOrEmpty(userId)) return null; 
+
+        if (int.TryParse(userId, out int intValue)) return intValue; 
+        
+        return null; 
+    }
+
 }

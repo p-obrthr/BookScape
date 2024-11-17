@@ -14,16 +14,16 @@ public class BookRepository : IBookRepository
         _context = appDbContext;
     }
 
-    public async Task<ulong> AddBookAsync(Book book)
+    public async Task<int> AddBookAsync(Book book)
     {
         var id = await _context.InsertWithIdentityAsync(book);
-        return (ulong)(long)id;
+        return (int)(long)id;
     }
 
-    public async Task DeleteBookAsync(ulong id)
+    public async Task DeleteBookAsync(int id)
     => await _context.DeleteAsync(id);
 
-    public async Task<Book?> GetBookAsync(ulong id)
+    public async Task<Book?> GetBookAsync(int id)
     { 
         var book =  await _context
                     .Books            
@@ -40,7 +40,7 @@ public class BookRepository : IBookRepository
         return books;
     }
 
-    public async Task<List<Book>> GetBooksByUserIdAsync(ulong userId)
+    public async Task<List<Book>> GetBooksByUserIdAsync(int userId)
     {
         var books =  await _context
                     .Books            

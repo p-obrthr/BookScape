@@ -1,5 +1,4 @@
 using Application.Services;
-using Domain.Interfaces;
 using Infrastructure.DependencyInjection;
 using WebAPI.Filters;
 using Microsoft.OpenApi.Models;
@@ -49,9 +48,8 @@ public class Program
             options.Filters.Add<GlobalExceptionFilter>();
         });
         builder.Services.InfrastructureServices(builder.Configuration);
-        
-        builder.Services.AddScoped<IBookService, BookService>();
 
+        
         var jwtKey = Environment.GetEnvironmentVariable("JWT_KEY");
         if (string.IsNullOrEmpty(jwtKey))
         {
@@ -69,7 +67,7 @@ public class Program
 
         app.UseAuthentication();
         app.UseAuthorization();
-        
+
         app.MapControllers();
 
         app.Run();

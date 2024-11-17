@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers;
 
-[ApiController]
 public class AuthenticationController : ControllerBase
 {
     private readonly IAuthenticationService _authServ;

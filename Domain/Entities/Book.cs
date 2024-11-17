@@ -2,9 +2,9 @@
 
 public class Book
 {
-    public ulong Id { get; set; }
-    public ulong? UserId { get; set; }
-    public string? Name { get; set; }
+    public int? Id { get; set; }
+    public int? UserId { get; set; }
+    public string? Title { get; set; }
     public string? Author { get; set; }
-    public bool? isCompleted { get; set; }
+    public bool? IsCompleted { get; set; }
 }

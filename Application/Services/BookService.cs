@@ -1,6 +1,6 @@
 using Application.Interfaces;
+using Application.Models;
 using Domain.Entities;
-using Domain.Interfaces;
 
 namespace Application.Services;
 
@@ -12,12 +12,24 @@ public class BookService : IBookService
         _bookRepo = bookRepository;
     }
 
-    public async Task<ulong> AddBookAsync(Book book)
+    public async Task<int> AddBookAsync(Book book)
     => await _bookRepo.AddBookAsync(book);
+
+    public async Task<int> AddBookAsync(BookCreationRequest bookCreationReq, int userId)
+    {
+         var  book = new Book()
+        {
+            UserId = userId,
+            Title = bookCreationReq.Title,
+            Author = bookCreationReq.Author,
+            IsCompleted = false
+        };
+        return await AddBookAsync(book);
+    }
 
     public async Task<List<Book>> GetAllBooksAsync()
     =>  await _bookRepo.GetAllBookAsync();
 
-    public async Task<List<Book>> GetBooksByUserAsync(ulong id)
+    public async Task<List<Book>> GetBooksByUserAsync(int id)
     => await _bookRepo.GetBooksByUserIdAsync(id);
 }
