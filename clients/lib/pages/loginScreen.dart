@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'styles.dart';
-import 'colors.dart';
-import 'widgets/switchSign.dart';
-import 'widgets/credentialBox.dart';
+import '../styles/styles.dart';
+import '../widgets/switchSign.dart';
+import '../widgets/credentialBox.dart';
+import '../widgets/mainBtn.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -12,70 +12,6 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool? isRememberMe = false;
-
-  Widget buildEmail() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        const Text('Email', style: AppStyles.labelStyle),
-        const SizedBox(height: 10),
-        Container(
-          alignment: Alignment.centerLeft,
-          decoration: AppStyles.inputBoxDecoration,
-          height: 60,
-          child: const TextField(
-            keyboardType: TextInputType.emailAddress,
-            style: TextStyle(color: Colors.black87),
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.only(top: 14),
-              prefixIcon: Icon(Icons.email, color: AppColors.mainColor),
-              hintText: 'Email',
-              hintStyle: AppStyles.hintStyle,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget buildPassword() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        const Text('Password', style: AppStyles.labelStyle),
-        const SizedBox(height: 10),
-        Container(
-          alignment: Alignment.centerLeft,
-          decoration: AppStyles.inputBoxDecoration,
-          height: 60,
-          child: const TextField(
-            obscureText: true,
-            style: TextStyle(color: Colors.black87),
-            decoration: InputDecoration(
-              border: InputBorder.none,
-              contentPadding: EdgeInsets.only(top: 14),
-              prefixIcon: Icon(Icons.lock, color: Color(0xff5ac18e)),
-              hintText: 'Password',
-              hintStyle: AppStyles.hintStyle,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget buildLoginBtn() {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 25),
-      width: double.infinity,
-      child: ElevatedButton(
-        onPressed: () => print('Login pressed'),
-        style: AppStyles.elevatedButtonStyle, // Verwende Styles
-        child: const Text('LOGIN', style: AppStyles.buttonTextStyle),
-      ),
-    );
-  }
 
   Widget buildForgotPasswordBtn() {
     return Container(
@@ -126,7 +62,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget buildSignUpBtn() {
+  Widget buildSwitch() {
     return const SwitchSign(
       mainText: "Don't have an account? ",
       actionText: "Sign up",
@@ -169,8 +105,10 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       buildForgotPasswordBtn(),
                       buildRememberBtn(),
-                      buildLoginBtn(),
-                      buildSignUpBtn()
+                      MainBtn(
+                        text: 'LOG IN'
+                      ),
+                      buildSwitch()
                     ],
                   ),
                 ),

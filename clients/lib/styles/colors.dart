@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  static const Color mainColor = Color(0xFF228B22);
+  static const Color mainColor = Color(0xFF2E8C68);
 
   static Color withOpacity(Color color, double opacity) {
     return color.withOpacity(opacity);
@@ -10,7 +10,7 @@ class AppColors {
   static Color get gradientLight => withOpacity(mainColor, 0.2); // 20%
   static Color get gradientMediumLight => withOpacity(mainColor, 0.4); // 40%
   static Color get gradientMediumDark => withOpacity(mainColor, 0.6); // 60%
-  static Color get gradientDark => mainColor.withOpacity(0.8); // 80%
+  static Color get gradientDark => mainColor.withOpacity(0.9); // 90%
 
   static Color lighten(Color color, double amount) {
     final hsl = HSLColor.fromColor(color);
