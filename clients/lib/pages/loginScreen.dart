@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../LoginResponse.dart';
 import '../styles/styles.dart';
 import '../widgets/switchSign.dart';
 import '../widgets/credentialBox.dart';
@@ -15,26 +17,42 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   bool? isRememberMe = false;
 
-  final TextEditingController emailController = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
   Future<void> login() async {
-    final email = emailController.text;
+    final name = nameController.text;
     final password = passwordController.text;
 
-    // Hier könntest du den API-Aufruf durchführen
-    final url = Uri.parse('https://your-api-endpoint.com/api/login');
+    print(name);
+    print(password);
+    final url = Uri.parse('http://localhost:4000/api/users/login');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'email': email, 'password': password}),
+      body: jsonEncode({'name': name, 'password': password}),
     );
 
+    print('reponse Body: ${response.body}');
+
     if (response.statusCode == 200) {
-      Navigator.pushReplacementNamed(context, '/page');
+      final loginResponse = LoginResponse.fromJson(jsonDecode(response.body));
+
+      if (loginResponse.flag) {
+        saveToken(loginResponse.token);
+
+        Navigator.pushReplacementNamed(context, '/page');
+      } else {
+        print('login failed: ${loginResponse.message}');
+      }
     } else {
-      print('Login fehlgeschlagen');
+      print('login failed');
     }
+  }
+
+  Future<void> saveToken(String token) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('auth_token', token);
   }
 
 
@@ -118,11 +136,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     children: <Widget>[
                       Text('LOG IN', style: AppStyles.titleStyle),
                       SizedBox(height: 50),
-                      // buildEmail(),
                       CredentialBox(
-                        text: 'Email',
-                        icon: Icons.email,
-                        controller: emailController
+                        text: 'Name',
+                        icon: Icons.source,
+                        controller: nameController
                       ),
                       SizedBox(height: 20),
                       CredentialBox(

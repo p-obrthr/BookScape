@@ -37,7 +37,6 @@ var (
 var jwtKeyBytes []byte
 
 func main() {
-	fmt.Println("Starting server...")
 
 	JWT_KEY, exists := os.LookupEnv("JWT_KEY")
 	if !exists {
@@ -76,15 +75,16 @@ func main() {
 	app.Post("api/users/register", registerUser)
 	app.Post("api/users/login", loginUser)
 
+	fmt.Println("Starting server...")
+
 	PORT := 4000
 	log.Fatal(app.Listen(":" + strconv.Itoa(PORT)))
 }
 
 func generateJWT(user User) (string, error) {
 	claims := jwt.MapClaims{
-		"id":   user.Id.Hex(),
-		"name": user.Name,
-		"exp":  time.Now().Add(time.Hour * 24).Unix(),
+		"id":  user.Id.Hex(),
+		"exp": time.Now().Add(time.Hour * 24).Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -154,7 +154,7 @@ func createBook(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"error": "book title is required"})
 	}
 
-	userId := c.Locals("userId").(string)
+	userId := c.Locals("userid").(string)
 	objectId, err := primitive.ObjectIDFromHex(userId)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "invalid userId"})
@@ -205,24 +205,40 @@ func loginUser(c *fiber.Ctx) error {
 	}
 
 	if input.Name == "" || input.Password == "" {
-		return c.Status(400).JSON(fiber.Map{"error": "name and password are required"})
+		return c.Status(400).JSON(fiber.Map{
+			"flag":    false,
+			"message": "name and password are required",
+		})
 	}
 
 	var user User
 	err := userCollection.FindOne(context.Background(), bson.M{"name": input.Name}).Decode(&user)
 	if err != nil {
-		return c.Status(400).JSON(fiber.Map{"error": "invalid credentials"})
+		return c.Status(400).JSON(fiber.Map{
+			"flag":    false,
+			"message": "invalid credentials",
+		})
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(input.Password))
 	if err != nil {
-		return c.Status(400).JSON(fiber.Map{"error": "invalid credentials"})
+		return c.Status(400).JSON(fiber.Map{
+			"flag":    false,
+			"message": "invalid credentials",
+		})
 	}
 
 	token, err := generateJWT(user)
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"error": "could not generate token"})
+		return c.Status(500).JSON(fiber.Map{
+			"flag":    false,
+			"message": "could not generate token",
+		})
 	}
 
-	return c.Status(200).JSON(fiber.Map{"message": "login successful", "token": token})
+	return c.Status(200).JSON(fiber.Map{
+		"flag":    true,
+		"message": "login successful",
+		"token":   token,
+	})
 }

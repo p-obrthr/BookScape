@@ -1,12 +1,12 @@
 class LoginResponse {
   final bool flag;
-  final String? message;
-  final String? token;
+  final String message;
+  final String token;
 
   LoginResponse({
     required this.flag,
-    this.message,
-    this.token,
+    required this.message,
+    required this.token,
   });
 
   factory LoginResponse.fromJson(Map<String, dynamic> json) {

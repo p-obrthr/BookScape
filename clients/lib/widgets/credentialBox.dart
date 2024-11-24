@@ -45,6 +45,7 @@ class CredentialBox extends StatelessWidget {
           ),
           height: 60,
           child: TextField(
+            controller: controller,
             obscureText: isObscureText,
             style: const TextStyle(
               color: Colors.black87,
