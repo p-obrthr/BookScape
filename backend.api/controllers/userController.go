@@ -21,6 +21,10 @@ func RegisterUser(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"error": "name and password are required"})
 	}
 
+	if user.Password != user.ConfirmPassword {
+		return c.Status(400).JSON(fiber.Map{"error": "passwords do not match"})
+	}
+
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(user.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return c.Status(500).JSON(fiber.Map{"error": "could not hash password"})
@@ -29,7 +33,7 @@ func RegisterUser(c *fiber.Ctx) error {
 
 	insertResult, err := utils.UserCollection.InsertOne(context.Background(), user)
 	if err != nil {
-		return c.Status(500).JSON(fiber.Map{"error": "could not register user"})
+		return c.Status(500).JSON(fiber.Map{"error": "could not register user", "details": err.Error()})
 	}
 
 	user.Id = insertResult.InsertedID.(primitive.ObjectID)

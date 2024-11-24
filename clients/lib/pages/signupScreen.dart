@@ -30,7 +30,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       return;
     }
 
-    final url = Uri.parse('http://localhost:5070/register');
+    final url = Uri.parse('http://localhost:4000/api/users/register');
     final response = await http.post(
       url,
       headers: {'Content-Type': 'application/json'},
@@ -41,6 +41,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
         'confirmPassword': confirmPassword,
       }),
     );
+
+    print(response.body);
 
     if (response.statusCode == 201) {
       Navigator.pushReplacementNamed(context, '/login');

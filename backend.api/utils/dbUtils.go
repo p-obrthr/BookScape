@@ -14,18 +14,22 @@ var (
 	UserCollection *mongo.Collection
 )
 
-func InitDb() {
+var client *mongo.Client
+
+func InitDb() *mongo.Client {
 	MONGODB_URI, exists := os.LookupEnv("MONGODB_URI")
 	if !exists {
 		log.Fatal("no mongodb uri found in environment variable")
 	}
 
 	clientOptions := options.Client().ApplyURI(MONGODB_URI)
-	client, err := mongo.Connect(context.Background(), clientOptions)
+	var err error
+	client, err = mongo.Connect(context.Background(), clientOptions)
 	if err != nil {
 		log.Fatal(err)
+	} else {
+		print("success db")
 	}
-	defer client.Disconnect(context.Background())
 
 	err = client.Ping(context.Background(), nil)
 	if err != nil {
@@ -34,4 +38,6 @@ func InitDb() {
 
 	BookCollection = client.Database("golang_db").Collection("books")
 	UserCollection = client.Database("golang_db").Collection("users")
+
+	return client
 }
