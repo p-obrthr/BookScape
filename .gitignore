@@ -5,3 +5,12 @@
 **/out/
 **/wwwroot/
 **/bookScape.db
+**/_obj
+**/_test
+**/*.log
+**/*.exe
+**/*.out
+**/*.o
+**/*.a
+**/*.so
+**/tmp/

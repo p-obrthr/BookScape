@@ -3,10 +3,12 @@ import '../styles/styles.dart';
 
 class MainBtn extends StatelessWidget {
   final String text;
+  final VoidCallback onPressed;
 
   const MainBtn({
     Key? key,
     required this.text,
+    required this.onPressed,
   }) : super(key: key);
 
   @override
@@ -15,7 +17,7 @@ class MainBtn extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 25),
       width: double.infinity,
       child: ElevatedButton(
-        onPressed: () => print('Login pressed'),
+        onPressed: onPressed,
         style: AppStyles.elevatedButtonStyle,
         child: Text(text, style: AppStyles.buttonTextStyle),
       ),

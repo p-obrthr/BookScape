@@ -4,6 +4,8 @@ import '../styles/styles.dart';
 import '../widgets/switchSign.dart';
 import '../widgets/credentialBox.dart';
 import '../widgets/mainBtn.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -12,6 +14,29 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool? isRememberMe = false;
+
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  Future<void> login() async {
+    final email = emailController.text;
+    final password = passwordController.text;
+
+    // Hier könntest du den API-Aufruf durchführen
+    final url = Uri.parse('https://your-api-endpoint.com/api/login');
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'email': email, 'password': password}),
+    );
+
+    if (response.statusCode == 200) {
+      Navigator.pushReplacementNamed(context, '/page');
+    } else {
+      print('Login fehlgeschlagen');
+    }
+  }
+
 
   Widget buildForgotPasswordBtn() {
     return Container(
@@ -97,16 +122,19 @@ class _LoginScreenState extends State<LoginScreen> {
                       CredentialBox(
                         text: 'Email',
                         icon: Icons.email,
+                        controller: emailController
                       ),
                       SizedBox(height: 20),
                       CredentialBox(
                         text: 'Password',
                         icon: Icons.lock,
+                        controller: passwordController,
                       ),
                       buildForgotPasswordBtn(),
                       buildRememberBtn(),
                       MainBtn(
-                        text: 'LOG IN'
+                        text: 'LOG IN',
+                        onPressed: login,
                       ),
                       buildSwitch()
                     ],

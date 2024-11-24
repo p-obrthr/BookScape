@@ -4,11 +4,13 @@ import '../styles/colors.dart';
 class CredentialBox extends StatelessWidget {
   final String text;
   final IconData icon;
+  final TextEditingController controller;
 
   const CredentialBox({
     Key? key,
     required this.text,
     required this.icon,
+    required this.controller,
   }) : super(key: key);
 
   @override
