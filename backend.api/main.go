@@ -6,8 +6,10 @@ import (
 	"log"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/golang-jwt/jwt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -17,7 +19,7 @@ import (
 
 type Book struct {
 	Id     primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
-	UserId primitive.ObjectID `json:"userId"`
+	UserId primitive.ObjectID `json:"userid"`
 	Title  string             `json:"title"`
 }
 
@@ -32,8 +34,17 @@ var (
 	userCollection *mongo.Collection
 )
 
+var jwtKeyBytes []byte
+
 func main() {
 	fmt.Println("Starting server...")
+
+	JWT_KEY, exists := os.LookupEnv("JWT_KEY")
+	if !exists {
+		log.Fatal("no jwt key found in environment variable")
+	}
+
+	jwtKeyBytes = []byte(JWT_KEY)
 
 	MONGODB_URI, exists := os.LookupEnv("MONGODB_URI")
 	if !exists {
@@ -59,8 +70,8 @@ func main() {
 
 	app := fiber.New()
 
-	app.Get("api/books", getBooks)
-	app.Post("api/books", createBook)
+	app.Get("api/books", jwtMiddleware, getBooks)
+	app.Post("api/books", jwtMiddleware, createBook)
 
 	app.Post("api/users/register", registerUser)
 	app.Post("api/users/login", loginUser)
@@ -69,15 +80,58 @@ func main() {
 	log.Fatal(app.Listen(":" + strconv.Itoa(PORT)))
 }
 
-func getBooks(c *fiber.Ctx) error {
-	var books []Book
+func generateJWT(user User) (string, error) {
+	claims := jwt.MapClaims{
+		"id":   user.Id.Hex(),
+		"name": user.Name,
+		"exp":  time.Now().Add(time.Hour * 24).Unix(),
+	}
 
-	cursor, err := bookCollection.Find(context.Background(), bson.M{})
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString(jwtKeyBytes)
+}
+
+func jwtMiddleware(c *fiber.Ctx) error {
+	tokenString := c.Get("Authorization")
+	if tokenString == "" || len(tokenString) < 7 || tokenString[:7] != "Bearer " {
+		return c.Status(401).JSON(fiber.Map{"error": "missing or invalid token"})
+	}
+
+	tokenString = tokenString[7:]
+
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+		return jwtKeyBytes, nil
+	})
+
+	if err != nil || !token.Valid {
+		return c.Status(401).JSON(fiber.Map{"error": "unauthorized"})
+	}
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		c.Locals("userid", claims["id"])
+	}
+
+	return c.Next()
+}
+
+func getBooks(c *fiber.Ctx) error {
+	userId := c.Locals("userid").(string)
+	objectId, err := primitive.ObjectIDFromHex(userId)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "invalid userId"})
+	}
+
+	filter := bson.M{"userid": objectId}
+	cursor, err := bookCollection.Find(context.Background(), filter)
 	if err != nil {
 		return err
 	}
 	defer cursor.Close(context.Background())
 
+	var books []Book
 	for cursor.Next(context.Background()) {
 		var book Book
 		if err := cursor.Decode(&book); err != nil {
@@ -100,9 +154,12 @@ func createBook(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"error": "book title is required"})
 	}
 
-	if book.UserId.IsZero() {
-		return c.Status(400).JSON(fiber.Map{"error": "userId is required and must be valid"})
+	userId := c.Locals("userId").(string)
+	objectId, err := primitive.ObjectIDFromHex(userId)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "invalid userId"})
 	}
+	book.UserId = objectId
 
 	insertResult, err := bookCollection.InsertOne(context.Background(), book)
 	if err != nil {
@@ -162,5 +219,10 @@ func loginUser(c *fiber.Ctx) error {
 		return c.Status(400).JSON(fiber.Map{"error": "invalid credentials"})
 	}
 
-	return c.Status(200).JSON(fiber.Map{"message": "login successful"})
+	token, err := generateJWT(user)
+	if err != nil {
+		return c.Status(500).JSON(fiber.Map{"error": "could not generate token"})
+	}
+
+	return c.Status(200).JSON(fiber.Map{"message": "login successful", "token": token})
 }
