@@ -1,4 +1,4 @@
-module github.com/p-obrthr/BookScape
+module backend.api
 
 go 1.23.0
 
